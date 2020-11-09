@@ -393,7 +393,7 @@ namespace Cinemachine
         /// <summary>API for the editor, to make the dragging of position handles behave better.</summary>
         public bool UserIsDragging { get; set; }
 
-        CameraState m_State = CameraState.Default; // Current state this frame
+        internal CameraState m_State = CameraState.Default; // Current state this frame
 
         CinemachineComponentBase[] m_ComponentPipeline = null;
         [SerializeField][HideInInspector] private Transform m_ComponentOwner = null;   // serialized to handle copy/paste

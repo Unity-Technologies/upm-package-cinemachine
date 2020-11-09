@@ -1,16 +1,25 @@
 {
     "name": "com.unity.cinemachine.Tests",
+    "rootNamespace": "",
     "references": [
-        "Cinemachine"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+        "Cinemachine",
+        "Unity.Splines",
+        "Unity.Mathematics",
+        "com.unity.cinemachine.editor",
+        "UnityEditor.TestRunner",
+        "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -1,5 +1,6 @@
 {
     "name": "com.unity.cinemachine.editor",
+    "rootNamespace": "",
     "references": [
         "Cinemachine",
         "Unity.Timeline",
@@ -12,7 +13,9 @@
         "Unity.RenderPipelines.HighDefinition.Editor",
         "Unity.ugui",
         "Unity.RenderPipelines.Universal.Runtime",
-        "Unity.RenderPipelines.Universal.Editor"
+        "Unity.RenderPipelines.Universal.Editor",
+        "Unity.Splines",
+        "Unity.Splines.Editor"
     ],
     "includePlatforms": [
         "Editor"

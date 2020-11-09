@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using Cinemachine.Utility;
 using UnityEngine.Serialization;
+using UnityEngine.Splines;
 
 namespace Cinemachine
 {
@@ -201,7 +202,12 @@ namespace Cinemachine
             }
 
             if (!IsValid)
+            {
+                m_PathPosition = 0;
                 return;
+            }
+            m_Path.InvalidateDistanceCache();
+            m_PathPosition = m_Path.StandardizeUnit(m_PathPosition, m_PositionUnits);
 
             // Get the new ideal path base position
             if (m_AutoDolly.m_Enabled && FollowTarget != null)

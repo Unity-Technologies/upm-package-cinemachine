@@ -1,5 +1,6 @@
 {
     "name": "Cinemachine",
+    "rootNamespace": "",
     "references": [
         "Unity.Timeline",
         "Unity.Postprocessing.Runtime",
@@ -8,7 +9,9 @@
         "Unity.ugui",
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.2D.PixelPerfect",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Splines",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
