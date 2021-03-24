@@ -23,6 +23,10 @@ namespace Cinemachine
 
         /// <summary>The current time relative to the start of the blend</summary>
         public float TimeInBlend { get; set; }
+        
+        internal CinemachineBrain.VcamBlendStartedEvent m_BlendStartCallbacks = null;
+        internal CinemachineBrain.VcamBlendEndedEvent m_BlendEndCallbacks = null;
+        ICinemachineCamera m_CamAInPreviousFrame = null;
 
         /// <summary>The current weight of the blend.  This is an evaluation of the
         /// BlendCurve at the current time relative to the start of the blend.
@@ -43,6 +47,7 @@ namespace Cinemachine
         /// <summary>Duration in seconds of the blend.</summary>
         public float Duration { get; set; }
 
+        /// <summary>True if the time relative to the start of the blend is greater
         /// <summary>True if the time relative to the start of the blend is greater
         /// than or equal to the blend duration</summary>
         public bool IsComplete { get { return TimeInBlend >= Duration || !IsValid; } }
@@ -109,6 +114,16 @@ namespace Cinemachine
             TimeInBlend = t;
             Duration = duration;
         }
+        
+        public CinemachineBlend(
+            ICinemachineCamera a, ICinemachineCamera b, AnimationCurve curve, float duration, float t, 
+            CinemachineBrain.VcamBlendStartedEvent onBlendStartCallbacks, CinemachineBrain.VcamBlendEndedEvent onBlendEndCallbacks) 
+        : this(a, b, curve, duration, t)
+        {
+            m_BlendStartCallbacks = onBlendStartCallbacks;
+            m_BlendEndCallbacks = onBlendEndCallbacks;
+        }
+            
 
         /// <summary>Make sure the source cameras get updated.</summary>
         /// <param name="worldUp">Default world up.  Individual vcams may modify this</param>
@@ -118,6 +133,13 @@ namespace Cinemachine
             // Make sure both cameras have been updated (they are not necessarily
             // enabled, and only enabled cameras get updated automatically
             // every frame)
+            
+            // Debug.Log("CinemachineBlend-UpdateCameraState");
+            // Debug.Log("CamA:"+CamA+"+ |CamB:"+CamB);
+            // Debug.Log("TimeInBlend:"+TimeInBlend);
+            // Debug.Log("Duration:"+Duration);
+
+            BlendStatusInvokes();
             if (CamA != null && CamA.IsValid)
                 CamA.UpdateCameraState(worldUp, deltaTime);
             if (CamB != null && CamB.IsValid)
@@ -139,6 +161,21 @@ namespace Cinemachine
                     return CamA.State;
                 return CameraState.Lerp(CamA.State, CamB.State, BlendWeight);
             }
+        }
+
+        void BlendStatusInvokes()
+        {
+            if (m_BlendStartCallbacks != null && 
+                m_CamAInPreviousFrame == null && CamA != null && TimeInBlend < Duration)
+            {
+                m_BlendStartCallbacks.Invoke(CamA, CamB);
+            }
+            else if (m_BlendEndCallbacks != null && 
+                m_CamAInPreviousFrame != null && CamA == null)
+            {
+                m_BlendEndCallbacks.Invoke(m_CamAInPreviousFrame, CamB);
+            }
+            m_CamAInPreviousFrame = CamA;
         }
     }
 

@@ -164,6 +164,18 @@ namespace Cinemachine
         /// The parameters are (incoming_vcam, outgoing_vcam), in that order.
         /// </summary>
         [Serializable] public class VcamActivatedEvent : UnityEvent<ICinemachineCamera, ICinemachineCamera> {}
+        
+        /// <summary>
+        /// Event that is fired when a blend has started.
+        /// The parameters are (incoming_vcam, outgoing_vcam), in that order.
+        /// </summary>
+        [Serializable] public class VcamBlendStartedEvent : UnityEvent<ICinemachineCamera, ICinemachineCamera> {}
+        
+        /// <summary>
+        /// Event that is fired when a blend has ended.
+        /// The parameters are (incoming_vcam, outgoing_vcam), in that order.
+        /// </summary>
+        [Serializable] public class VcamBlendEndedEvent : UnityEvent<ICinemachineCamera, ICinemachineCamera> {}
 
         /// <summary>This event will fire whenever a virtual camera goes live and there is no blend</summary>
         [Tooltip("This event will fire whenever a virtual camera goes live and there is no blend")]
@@ -176,6 +188,9 @@ namespace Cinemachine
         [Tooltip("This event will fire whenever a virtual camera goes live.  If a blend is "
             + "involved, then the event will fire on the first frame of the blend.")]
         public VcamActivatedEvent m_CameraActivatedEvent = new VcamActivatedEvent();
+
+        public VcamBlendStartedEvent m_BlendStartEvent = new VcamBlendStartedEvent();
+        public VcamBlendEndedEvent m_BlendEndEvent = new VcamBlendEndedEvent();
 
         /// <summary>
         /// API for the Unity Editor.
@@ -219,6 +234,9 @@ namespace Cinemachine
 
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.sceneUnloaded += OnSceneUnloaded;
+
+            mCurrentLiveCameras.m_BlendStartCallbacks = m_BlendStartEvent;
+            mCurrentLiveCameras.m_BlendEndCallbacks = m_BlendEndEvent;
         }
 
         private void OnDisable()
