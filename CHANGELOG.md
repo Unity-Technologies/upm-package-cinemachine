@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Bugfix: Reversing a blend in progress respects asymmetric blend times.
 - Bugfix: CinemachineCollider's displacement damping was being calculated in world space instead of camera space.
 - Bugfix: TrackedDolly sometimes introduced spurious rotations if Default Up and no Aim behaviour.
+- New feature: Layer for CinemachineVolumeSettings can be overriden per vcam.
 
 
 ## [2.8.0-exp.1] - 2021-03-31

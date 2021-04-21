@@ -99,6 +99,20 @@ namespace Cinemachine.PostFX
         [Tooltip("This profile will be applied whenever this virtual camera is live")]
         public VolumeProfile m_Profile;
 
+        /// <summary>
+        /// LayerMask override for the layer used by this vcam's volume settings.
+        /// </summary>
+        [HideInInspector]
+        [Tooltip("LayerMask override for the layer used by this vcam's volume settings.")]
+        public LayerMask m_LayerMaskOverride;
+
+        /// <summary>
+        /// If true, enables LayerMask override.
+        /// </summary>
+        [HideInInspector]
+        [Tooltip("If true, enables LayerMask override.")]
+        public bool m_LayerMaskOverrideEnabled;
+
         class VcamExtraState
         {
             public VolumeProfile mProfileCopy;
@@ -243,7 +257,9 @@ namespace Cinemachine.PostFX
         {
             CameraState state = brain.CurrentCameraState;
             int numBlendables = state.NumCustomBlendables;
-            var volumes = GetDynamicBrainVolumes(brain, numBlendables);
+            var currentVolume = 
+                brain.ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<CinemachineVolumeSettings>();
+            var volumes = GetDynamicBrainVolumes(brain, numBlendables, currentVolume);
             for (int i = 0; i < volumes.Count; ++i)
             {
                 volumes[i].weight = 0;
@@ -279,7 +295,8 @@ namespace Cinemachine.PostFX
 
         static string sVolumeOwnerName = "__CMVolumes";
         static  List<Volume> sVolumes = new List<Volume>();
-        static List<Volume> GetDynamicBrainVolumes(CinemachineBrain brain, int minVolumes)
+        static List<Volume> GetDynamicBrainVolumes(CinemachineBrain brain, int minVolumes, 
+            CinemachineVolumeSettings cmVolume)
         {
             // Locate the camera's child object that holds our dynamic volumes
             GameObject volumeOwner = null;
@@ -308,20 +325,27 @@ namespace Cinemachine.PostFX
                 }
 
                 // Update the volume's layer so it will be seen
-#if CINEMACHINE_HDRP
-                var data = brain.gameObject.GetComponent<HDAdditionalCameraData>();
-#elif CINEMACHINE_LWRP_7_3_1
-                var data = brain.gameObject.GetComponent<UniversalAdditionalCameraData>();
-#endif
-                if (data != null)
+                if (cmVolume.m_LayerMaskOverrideEnabled)
                 {
-                    int mask = data.volumeLayerMask;
-                    for (int i = 0; i < 32; ++i)
+                    volumeOwner.layer = cmVolume.m_LayerMaskOverride;
+                }
+                else
+                {
+#if CINEMACHINE_HDRP
+                    var data = brain.gameObject.GetComponent<HDAdditionalCameraData>();
+#elif CINEMACHINE_LWRP_7_3_1
+                    var data = brain.gameObject.GetComponent<UniversalAdditionalCameraData>();
+#endif
+                    if (data != null)
                     {
-                        if ((mask & (1 << i)) != 0)
+                        int mask = data.volumeLayerMask;
+                        for (int i = 0; i < 32; ++i)
                         {
-                            volumeOwner.layer = i;
-                            break;
+                            if ((mask & (1 << i)) != 0)
+                            {
+                                volumeOwner.layer = i;
+                                break;
+                            }
                         }
                     }
                 }

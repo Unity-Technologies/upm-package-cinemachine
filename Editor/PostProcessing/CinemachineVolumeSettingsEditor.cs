@@ -26,21 +26,31 @@ namespace Cinemachine.PostFX.Editor
     {
         SerializedProperty m_Profile;
         SerializedProperty m_FocusTracking;
+        SerializedProperty m_LayerMaskOverride;
+        SerializedProperty m_LayerMaskOverrideEnabled;
 
         VolumeComponentListEditor m_ComponentList;
 
         GUIContent m_ProfileLabel;
         GUIContent m_NewLabel;
         GUIContent m_CloneLabel;
+        GUIContent m_LayerMaskOverrideLabel;
+
+        static bool s_AdvancedFoldout;
 
         void OnEnable()
         {
             m_ProfileLabel = new GUIContent("Profile", "A reference to a profile asset");
             m_NewLabel = new GUIContent("New", "Create a new profile.");
-            m_CloneLabel = new GUIContent("Clone", "Create a new profile and copy the content of the currently assigned profile.");
-
+            m_CloneLabel = new GUIContent("Clone", 
+                "Create a new profile and copy the content of the currently assigned profile.");
+            m_LayerMaskOverrideLabel = new GUIContent("LayerMaskOverride", 
+                "LayerMask override for the layer used by this vcam's volume settings.");
+            
             m_FocusTracking = FindProperty(x => x.m_FocusTracking);
             m_Profile = FindProperty(x => x.m_Profile);
+            m_LayerMaskOverride = FindProperty(x => x.m_LayerMaskOverride);
+            m_LayerMaskOverrideEnabled = FindProperty(x => x.m_LayerMaskOverrideEnabled);
 
             RefreshVolumeComponentEditor(Target.m_Profile);
         }
@@ -123,6 +133,32 @@ namespace Cinemachine.PostFX.Editor
             var buttonCopyRect = new Rect(buttonNewRect.xMax, lineRect.y, buttonWidth, lineRect.height);
 
             EditorGUI.PrefixLabel(labelRect, m_ProfileLabel);
+
+            s_AdvancedFoldout = EditorGUILayout.Foldout(s_AdvancedFoldout, "Advanced");
+            if (s_AdvancedFoldout)
+            {
+                ++EditorGUI.indentLevel;
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.BeginHorizontal();
+                m_LayerMaskOverrideEnabled.boolValue = EditorGUILayout.Toggle(m_LayerMaskOverrideEnabled.boolValue);
+                if (m_LayerMaskOverrideEnabled.boolValue)
+                {
+                    m_LayerMaskOverride.intValue 
+                        = EditorGUILayout.LayerField(m_LayerMaskOverrideLabel, m_LayerMaskOverride.intValue);
+                }
+                else
+                {
+                    GUI.enabled = false; // to gray out field
+                    EditorGUILayout.LayerField(m_LayerMaskOverrideLabel, m_LayerMaskOverride.intValue);
+                    GUI.enabled = true;
+                }
+                EditorGUILayout.EndHorizontal();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    serializedObject.ApplyModifiedProperties();
+                }
+                --EditorGUI.indentLevel;
+            }
 
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
