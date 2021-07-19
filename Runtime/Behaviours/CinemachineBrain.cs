@@ -203,6 +203,8 @@ namespace Cinemachine
         private static ICinemachineCamera mSoloCamera;
         private Coroutine mPhysicsCoroutine;
 
+        private int m_LastFrameUpdated;
+
         private void OnEnable()
         {
             // Make sure there is a first stack frame
@@ -232,11 +234,20 @@ namespace Cinemachine
             StopCoroutine(mPhysicsCoroutine);
         }
 
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode) { if (mFrameStack.Count > 0) ManualUpdate(); }
-        void OnSceneUnloaded(Scene scene) { if (mFrameStack.Count > 0) ManualUpdate(); }
-
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode) 
+        { 
+            if (Time.frameCount == m_LastFrameUpdated && mFrameStack.Count > 0)
+                ManualUpdate();
+        }
+        void OnSceneUnloaded(Scene scene)
+        {
+            if (Time.frameCount == m_LastFrameUpdated && mFrameStack.Count > 0)
+                ManualUpdate();
+        }
+        
         private void Start()
         {
+            m_LastFrameUpdated = -1;
             UpdateVirtualCameras(CinemachineCore.UpdateFilter.Late, -1f);
         }
 
@@ -333,6 +344,8 @@ namespace Cinemachine
         /// </summary>
         public void ManualUpdate()
         {
+            m_LastFrameUpdated = Time.frameCount;
+
             float deltaTime = GetEffectiveDeltaTime(false);
             if (!Application.isPlaying || m_BlendUpdateMethod != BrainUpdateMethod.FixedUpdate)
                 UpdateFrame0(deltaTime);
